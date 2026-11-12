@@ -1,0 +1,108 @@
+---
+import type { DatedEntry } from "../../data/activity";
+import { layoutGantt } from "../../lib/gantt";
+
+interface Props {
+  entries: DatedEntry[];
+}
+
+// A Gantt chart reads top-down from the earliest start.
+const sortKey = (date: string) => (date.length === 7 ? `${date}-01` : date);
+const entries = [...Astro.props.entries].sort((a, b) => sortKey(a.date).localeCompare(sortKey(b.date)));
+const chart = layoutGantt(entries.map((entry) => ({ id: entry.id, start: entry.date, end: entry.end })));
+const bars = new Map(chart.bars.map((bar) => [bar.id, bar]));
+---
+
+{
+  entries.length === 0 ? (
+    <p class="activity-empty">No milestones are listed yet.</p>
+  ) : (
+    <>
+      <div class="gantt">
+        <div class="gantt__grid" aria-hidden="true">
+          {chart.months.map((month) => (
+            <span class="gantt__gridline" style={`left:${month.left}%`} />
+          ))}
+          <span class="gantt__today" style={`left:${chart.today}%`} />
+        </div>
+
+        <div class="gantt__row gantt__row--axis" aria-hidden="true">
+          <div class="gantt__track gantt__axis">
+            <div class="gantt__years">
+              {chart.years.map((year) => (
+                <span class:list={[year.tight && "tight"]} style={`left:${year.left}%`}>{year.label}</span>
+              ))}
+            </div>
+            <div class="gantt__months">
+              {chart.months.map((month) => (
+                <span style={`left:${month.left}%;width:${month.width}%`}>
+                  {month.showLabel && (
+                    <>
+                      <span class="full">{month.label}</span>
+                      <span class="short">{month.initial}</span>
+                    </>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <ol class="gantt__rows">
+          {entries.map((entry) => {
+            const bar = bars.get(entry.id)!;
+            return (
+              <li class="gantt__row">
+                <div class="gantt__label">
+                  <a class="gantt__name" href={`#${entry.id}`}>{entry.title}</a>
+                  <p class="gantt__dates">
+                    <time datetime={entry.date}>{entry.dateLabel}</time>
+                  </p>
+                </div>
+                <div class="gantt__track" aria-hidden="true">
+                  <span
+                    class:list={["gantt__bar", bar.ongoing && "gantt__bar--ongoing"]}
+                    style={`left:${bar.left}%;width:${bar.width}%`}
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <p class="activity-caption">
+        Bars are drawn to scale by day. The vertical line is <time datetime={chart.asOfIso}>{chart.asOfLabel}</time>,
+        when this page was built; a bar that reaches it is still running.
+      </p>
+
+      <ol class="gantt-notes">
+        {entries.map((entry) => (
+          <li class="gantt-note" id={entry.id}>
+            <div class="gantt-note__head">
+              <h2 class="gantt-note__title">{entry.title}</h2>
+              <p class="gantt-note__date">
+                <time datetime={entry.date}>{entry.dateLabel}</time>
+              </p>
+            </div>
+            <div class="gantt-note__body">
+              {entry.details.map((detail) => (
+                <p>{detail}</p>
+              ))}
+              {entry.href && entry.hrefLabel && (
+                <a
+                  class="gantt-note__link"
+                  href={entry.href}
+                  target={entry.external ? "_blank" : undefined}
+                  rel={entry.external ? "noopener noreferrer" : undefined}
+                >
+                  {entry.hrefLabel}
+                  {entry.external && <span class="sr-only"> (opens in a new tab)</span>}
+                </a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
+  )
+}

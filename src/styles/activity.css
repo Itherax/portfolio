@@ -12,7 +12,8 @@
 
 .activity-kicker,
 .activity-section__head h2,
-.milestones__year {
+.gantt__years,
+.gantt__months {
   margin: 0;
   color: var(--page-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -114,7 +115,8 @@
 .activity-rail,
 .activity-repos,
 .activity-lang__list,
-.milestones__list,
+.gantt__rows,
+.gantt-notes,
 .activity-links {
   margin: 0;
   padding: 0;
@@ -237,16 +239,14 @@
   min-height: 2.4rem;
 }
 
-.activity-rail__mark,
-.milestone__mark {
+.activity-rail__mark {
   position: relative;
   align-self: stretch;
   display: flex;
   justify-content: center;
 }
 
-.activity-rail__mark::before,
-.milestone__mark::before {
+.activity-rail__mark::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -263,8 +263,7 @@
   bottom: calc(50% - 0.55rem);
 }
 
-.activity-rail__node,
-.milestone__node {
+.activity-rail__node {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
@@ -302,7 +301,8 @@
 .activity-repo__meta { grid-area: meta; }
 
 .activity-repo__name,
-.milestone__link,
+.gantt__name,
+.gantt-note__link,
 .activity-links a {
   text-decoration: none;
 }
@@ -317,11 +317,13 @@
 }
 
 .activity-repo__name:hover,
-.milestone__link:hover,
+.gantt__name:hover,
+.gantt-note__link:hover,
 .activity-links a:hover .activity-links__label { color: var(--page-accent); }
 
 .activity-repo__name:focus-visible,
-.milestone__link:focus-visible,
+.gantt__name:focus-visible,
+.gantt-note__link:focus-visible,
 .activity-links a:focus-visible {
   outline: 2px solid var(--page-accent);
   outline-offset: 3px;
@@ -382,59 +384,104 @@
 
 .activity-links__detail { color: var(--page-secondary); font-size: 0.95rem; }
 
-.milestones { margin-top: 3rem; }
-.milestones__group + .milestones__group { margin-top: 2.4rem; }
-
-.milestones,
-.milestone,
-.milestones__heading {
-  --milestone-date: 13.5rem;
-  --milestone-mark: 1.25rem;
-  --milestone-gap: 0.85rem;
+/* Timeline Gantt chart. The label column and the plot share one grid so the
+   month rules and the build-date line run through every row. */
+.gantt {
+  --gantt-label: 15rem;
+  --gantt-gap: 1.5rem;
+  --gantt-rule: color-mix(in srgb, var(--page-foreground) 16%, transparent);
+  position: relative;
+  margin-top: 3rem;
+  border-bottom: 1px solid var(--gantt-rule);
 }
 
-.milestone,
-.milestones__heading {
+.gantt__grid {
+  position: absolute;
+  top: 1.6rem;
+  right: 0;
+  bottom: 0;
+  left: calc(var(--gantt-label) + var(--gantt-gap));
+  pointer-events: none;
+}
+
+.gantt__gridline,
+.gantt__today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.gantt__gridline { background: color-mix(in srgb, var(--page-foreground) 9%, transparent); }
+.gantt__today { top: 1.8rem; background: var(--page-foreground); }
+
+.gantt__row {
+  position: relative;
   display: grid;
-  grid-template-columns: var(--milestone-date) var(--milestone-mark) minmax(0, 1fr);
-  column-gap: var(--milestone-gap);
+  grid-template-columns: var(--gantt-label) minmax(0, 1fr);
+  column-gap: var(--gantt-gap);
+  align-items: center;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--gantt-rule);
 }
 
-.milestones__heading { margin-bottom: 0.4rem; }
-.milestones__year { grid-column: 3; }
+.gantt__row--axis { padding: 0; border-top: 0; }
+.gantt__row--axis .gantt__track { grid-column: 2; }
 
-.milestone { padding-bottom: 1.85rem; }
-.milestone:last-child { padding-bottom: 0; }
+.gantt__track { position: relative; height: 1.25rem; }
+.gantt__axis { height: 3.4rem; }
 
-.milestone__date {
-  margin: 0;
-  padding-top: 0.15rem;
+.gantt__years,
+.gantt__months { position: absolute; right: 0; left: 0; }
+.gantt__years { top: 0; color: var(--page-foreground); }
+.gantt__months { top: 1.6rem; letter-spacing: 0.08em; }
+
+.gantt__years > span,
+.gantt__months > span { position: absolute; top: 0; }
+.gantt__months > span { padding: 0.45rem 0 0 0.4rem; box-sizing: border-box; overflow: hidden; white-space: nowrap; }
+.gantt__months .short { display: none; }
+
+.gantt__name {
+  color: var(--page-foreground);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.gantt__dates,
+.gantt-note__date {
+  margin: 0.2rem 0 0;
   color: var(--page-secondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
-  text-align: right;
-  white-space: nowrap;
 }
 
-.milestone__mark::before {
-  top: 0.72rem;
-  bottom: -1.85rem;
+.gantt__bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  min-width: 3px;
+  border-radius: 3px;
+  background: var(--page-accent);
 }
 
-.milestone:last-child .milestone__mark::before {
-  top: 0.7rem;
-  bottom: 0.35rem;
-  height: auto;
+/* Still running: square at the build-date line instead of a closed end. */
+.gantt__bar--ongoing { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+.gantt-notes { margin-top: 3.25rem; }
+
+.gantt-note {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  column-gap: 1.5rem;
+  padding: 1.6rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--page-foreground) 16%, transparent);
+  scroll-margin-top: 1.5rem;
 }
 
-.milestone__node {
-  width: 9px;
-  height: 9px;
-  margin-top: 0.42rem;
-}
-
-.milestone__title {
+.gantt-note__title {
   margin: 0;
   color: var(--page-foreground);
   font-size: 1.35rem;
@@ -443,18 +490,17 @@
   line-height: 1.2;
 }
 
-.milestone__body p {
+.gantt-note__body p {
   max-width: 40rem;
-  margin: 0.55rem 0 0;
+  margin: 0 0 0.55rem;
   color: var(--page-secondary);
   line-height: 1.55;
 }
 
-.milestone__link {
+.gantt-note__link {
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
-  margin-top: 0.35rem;
   color: var(--page-foreground);
   font-weight: 600;
   text-decoration: underline;
@@ -488,24 +534,15 @@
   .activity-section__head { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
   .activity-section__head p { text-align: left; }
 
-  .milestones__heading { display: block; }
+  .gantt { --gantt-label: 0rem; --gantt-gap: 0rem; }
+  .gantt__row { grid-template-columns: minmax(0, 1fr); row-gap: 0.7rem; }
+  .gantt__row--axis .gantt__track { grid-column: 1; }
+  .gantt__months > span { padding-left: 0.2rem; }
+  .gantt__years .tight { display: none; }
+  .gantt__months .full { display: none; }
+  .gantt__months .short { display: inline; }
 
-  .milestone {
-    grid-template-columns: var(--milestone-mark) minmax(0, 1fr);
-    grid-template-areas: "date date" "mark body";
-    row-gap: 0.35rem;
-    align-items: start;
-  }
-
-  .milestone__date {
-    grid-area: date;
-    padding-top: 0;
-    text-align: left;
-    white-space: normal;
-  }
-
-  .milestone__mark { grid-area: mark; }
-  .milestone__body { grid-area: body; }
+  .gantt-note { grid-template-columns: minmax(0, 1fr); row-gap: 0.8rem; }
 
   .activity-links a { grid-template-columns: 1fr; gap: 0.2rem; }
 }

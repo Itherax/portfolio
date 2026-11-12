@@ -8,11 +8,15 @@
  * Resume lines whose titles or dates still disagree stay on the resume.
  *
  * A month-only date sorts as the first of that month. The visible label is the claim.
+ * The timeline Gantt chart draws each bar from `date` to `end`, or to the build date
+ * when there is no `end`. Keep both in step with the label.
  */
 
 export type DatedEntry = {
   id: string;
   date: string;
+  /** Last day of a finished span. Leave it out while the work is still running. */
+  end?: string;
   dateLabel: string;
   title: string;
   details: string[];
@@ -35,6 +39,9 @@ function publish(entries: DatedEntry[]): DatedEntry[] {
   const ids = new Set<string>();
   for (const entry of entries) {
     if (!isoDate.test(entry.date)) throw new Error(`Activity entry ${entry.id} needs an ISO date`);
+    if (entry.end && (!isoDate.test(entry.end) || entry.end < entry.date)) {
+      throw new Error(`Activity entry ${entry.id} needs an ISO end date on or after its start`);
+    }
     if (ids.has(entry.id)) throw new Error(`Duplicate activity id ${entry.id}`);
     ids.add(entry.id);
     if (!entry.title.trim() || entry.details.length === 0 || entry.details.some((detail) => !detail.trim())) {
@@ -53,7 +60,7 @@ const changelogSource: DatedEntry[] = [
     title: "Activity analytics",
     details: [
       "The GitHub page shows contribution totals, month and weekday bars, language share, and recent public commits.",
-      "The timeline lists the published milestones on a vertical spine. The changelog stays a release log.",
+      "The timeline lists the published milestones. The changelog stays a release log.",
     ],
     href: "/activity/github",
     hrefLabel: "GitHub analytics",
@@ -155,6 +162,7 @@ const timelineSource: DatedEntry[] = [
   {
     id: "panoptes",
     date: "2026-05-18",
+    end: "2026-08-14",
     dateLabel: "May 18 – August 14, 2026",
     title: "Panoptes",
     details: [
