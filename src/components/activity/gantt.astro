@@ -9,8 +9,28 @@ interface Props {
 // A Gantt chart reads top-down from the earliest start.
 const sortKey = (date: string) => (date.length === 7 ? `${date}-01` : date);
 const entries = [...Astro.props.entries].sort((a, b) => sortKey(a.date).localeCompare(sortKey(b.date)));
-const chart = layoutGantt(entries.map((entry) => ({ id: entry.id, start: entry.date, end: entry.end })));
+const chart = layoutGantt(
+  entries.flatMap((entry) => [
+    { id: entry.id, start: entry.date, end: entry.end },
+    ...(entry.tasks ?? []).map((task, index) => ({ id: `${entry.id}/${index}`, start: task.date, end: task.end })),
+  ]),
+);
 const bars = new Map(chart.bars.map((bar) => [bar.id, bar]));
+const round = (value: number) => Math.round(value * 1000) / 1000;
+
+const rows = entries.map((entry, index) => {
+  const bar = bars.get(entry.id)!;
+  let from = bar.left;
+  const tasks = (entry.tasks ?? []).map((task, taskIndex) => {
+    const taskBar = bars.get(`${entry.id}/${taskIndex}`)!;
+    // Elbow from the previous bar's end (the parent's start for the first task) to this bar's start.
+    const link = taskBar.left > from ? { left: from, width: round(taskBar.left - from) } : undefined;
+    from = round(taskBar.left + taskBar.width);
+    return { task, bar: taskBar, link, first: taskIndex === 0 };
+  });
+  // A bar that starts late in the plot gets its date label right-aligned so it stays inside the frame.
+  return { entry, bar, tasks, color: (index % 5) + 1, flip: bar.left > 40 };
+});
 ---
 
 {
@@ -26,7 +46,8 @@ const bars = new Map(chart.bars.map((bar) => [bar.id, bar]));
           <span class="gantt__today" style={`left:${chart.today}%`} />
         </div>
 
-        <div class="gantt__row gantt__row--axis" aria-hidden="true">
+        <div class="gantt__row gantt__head" aria-hidden="true">
+          <p class="gantt__corner">Milestones</p>
           <div class="gantt__track gantt__axis">
             <div class="gantt__years">
               {chart.years.map((year) => (
@@ -49,25 +70,50 @@ const bars = new Map(chart.bars.map((bar) => [bar.id, bar]));
         </div>
 
         <ol class="gantt__rows">
-          {entries.map((entry) => {
-            const bar = bars.get(entry.id)!;
-            return (
-              <li class="gantt__row">
-                <div class="gantt__label">
-                  <a class="gantt__name" href={`#${entry.id}`}>{entry.title}</a>
-                  <p class="gantt__dates">
+          {rows.map(({ entry, bar, tasks, color, flip }) => (
+            <li class={`gantt__group gantt__group--c${color}`}>
+              <div class="gantt__row gantt__row--main">
+                <a class="gantt__name" href={`#${entry.id}`}>{entry.title}</a>
+                <div class="gantt__track">
+                  <p
+                    class="gantt__when"
+                    style={flip ? `right:${round(100 - bar.left - bar.width)}%` : `left:${bar.left}%`}
+                  >
                     <time datetime={entry.date}>{entry.dateLabel}</time>
                   </p>
-                </div>
-                <div class="gantt__track" aria-hidden="true">
                   <span
                     class:list={["gantt__bar", bar.ongoing && "gantt__bar--ongoing"]}
                     style={`left:${bar.left}%;width:${bar.width}%`}
+                    aria-hidden="true"
                   />
                 </div>
-              </li>
-            );
-          })}
+              </div>
+              {tasks.length > 0 && (
+                <ol class="gantt__tasks">
+                  {tasks.map(({ task, bar: taskBar, link, first }) => (
+                    <li class="gantt__row gantt__row--task">
+                      <p class="gantt__task">
+                        {task.title}
+                        <span class="sr-only">, {task.dateLabel}</span>
+                      </p>
+                      <div class="gantt__track" aria-hidden="true">
+                        {link && (
+                          <span
+                            class:list={["gantt__link", first && "gantt__link--first"]}
+                            style={`left:${link.left}%;width:${link.width}%`}
+                          />
+                        )}
+                        <span
+                          class:list={["gantt__bar", taskBar.ongoing && "gantt__bar--ongoing"]}
+                          style={`left:${taskBar.left}%;width:${taskBar.width}%`}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </li>
+          ))}
         </ol>
       </div>
       <p class="activity-caption">

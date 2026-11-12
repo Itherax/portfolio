@@ -12,6 +12,9 @@
  * when there is no `end`. Keep both in step with the label.
  */
 
+/** A dated step inside a timeline entry, drawn as a thin bar under its parent. */
+export type DatedTask = { title: string; date: string; end?: string; dateLabel: string };
+
 export type DatedEntry = {
   id: string;
   date: string;
@@ -23,6 +26,8 @@ export type DatedEntry = {
   href?: string;
   hrefLabel?: string;
   external?: boolean;
+  /** Optional sub-steps for the Gantt chart. Add one only when it has a public source. */
+  tasks?: DatedTask[];
 };
 
 const isoDate = /^\d{4}-\d{2}(?:-\d{2})?$/;
@@ -44,6 +49,11 @@ function publish(entries: DatedEntry[]): DatedEntry[] {
     }
     if (ids.has(entry.id)) throw new Error(`Duplicate activity id ${entry.id}`);
     ids.add(entry.id);
+    for (const task of entry.tasks ?? []) {
+      if (!task.title.trim() || !task.dateLabel.trim() || !isoDate.test(task.date) || (task.end && (!isoDate.test(task.end) || task.end < task.date))) {
+        throw new Error(`Activity entry ${entry.id} has a task with a missing title, label or ISO date`);
+      }
+    }
     if (!entry.title.trim() || entry.details.length === 0 || entry.details.some((detail) => !detail.trim())) {
       throw new Error(`Activity entry ${entry.id} is missing copy`);
     }

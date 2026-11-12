@@ -384,23 +384,52 @@
 
 .activity-links__detail { color: var(--page-secondary); font-size: 0.95rem; }
 
-/* Timeline Gantt chart. The label column and the plot share one grid so the
-   month rules and the build-date line run through every row. */
+/* Timeline Gantt chart: a framed panel with a label column and a to-scale plot.
+   Every row shares one grid so the month rules and the build-date line run
+   through the whole panel. Each milestone takes the next colour; Matrix stays
+   on its single green. */
 .gantt {
-  --gantt-label: 15rem;
-  --gantt-gap: 1.5rem;
-  --gantt-rule: color-mix(in srgb, var(--page-foreground) 16%, transparent);
+  --gantt-label: 17rem;
+  --gantt-head: 4rem;
+  --gantt-rule: color-mix(in srgb, var(--page-accent) 55%, transparent);
+  --gantt-c1: var(--page-accent);
+  --gantt-c2: #e3b04b;
+  --gantt-c3: #e07a5f;
+  --gantt-c4: #9bbf6a;
+  --gantt-c5: #e06377;
   position: relative;
   margin-top: 3rem;
-  border-bottom: 1px solid var(--gantt-rule);
+  overflow: hidden;
+  border: 1px solid var(--gantt-rule);
+  border-radius: 14px;
 }
+
+[data-theme="light"] .gantt {
+  --gantt-c2: #c98a1a;
+  --gantt-c3: #c9603f;
+  --gantt-c4: #6f9a3a;
+  --gantt-c5: #cf4660;
+}
+
+[data-theme="matrix"] .gantt {
+  --gantt-c2: var(--page-accent);
+  --gantt-c3: var(--page-accent);
+  --gantt-c4: var(--page-accent);
+  --gantt-c5: var(--page-accent);
+}
+
+.gantt__group--c1 { --gantt-color: var(--gantt-c1); }
+.gantt__group--c2 { --gantt-color: var(--gantt-c2); }
+.gantt__group--c3 { --gantt-color: var(--gantt-c3); }
+.gantt__group--c4 { --gantt-color: var(--gantt-c4); }
+.gantt__group--c5 { --gantt-color: var(--gantt-c5); }
 
 .gantt__grid {
   position: absolute;
-  top: 1.6rem;
+  top: 0;
   right: 0;
   bottom: 0;
-  left: calc(var(--gantt-label) + var(--gantt-gap));
+  left: var(--gantt-label);
   pointer-events: none;
 }
 
@@ -412,36 +441,55 @@
   width: 1px;
 }
 
-.gantt__gridline { background: color-mix(in srgb, var(--page-foreground) 9%, transparent); }
-.gantt__today { top: 1.8rem; background: var(--page-foreground); }
+.gantt__gridline { margin-left: -1px; background: var(--gantt-rule); }
+.gantt__today { top: var(--gantt-head); background: var(--page-foreground); }
 
 .gantt__row {
   position: relative;
   display: grid;
   grid-template-columns: var(--gantt-label) minmax(0, 1fr);
-  column-gap: var(--gantt-gap);
-  align-items: center;
-  padding: 1.1rem 0;
-  border-top: 1px solid var(--gantt-rule);
 }
 
-.gantt__row--axis { padding: 0; border-top: 0; }
-.gantt__row--axis .gantt__track { grid-column: 2; }
+.gantt__head { height: var(--gantt-head); border-bottom: 1px solid var(--gantt-rule); }
 
-.gantt__track { position: relative; height: 1.25rem; }
-.gantt__axis { height: 3.4rem; }
+.gantt__corner {
+  align-self: center;
+  margin: 0;
+  padding: 0 1.25rem;
+  color: var(--page-foreground);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gantt__track { position: relative; }
+.gantt__axis { height: 100%; }
 
 .gantt__years,
 .gantt__months { position: absolute; right: 0; left: 0; }
-.gantt__years { top: 0; color: var(--page-foreground); }
-.gantt__months { top: 1.6rem; letter-spacing: 0.08em; }
+.gantt__years { top: 0.7rem; color: var(--page-foreground); }
+.gantt__months { top: 2.2rem; letter-spacing: 0.08em; }
 
 .gantt__years > span,
 .gantt__months > span { position: absolute; top: 0; }
-.gantt__months > span { padding: 0.45rem 0 0 0.4rem; box-sizing: border-box; overflow: hidden; white-space: nowrap; }
+.gantt__years > span { padding-left: 0.6rem; }
+.gantt__months > span { overflow: hidden; text-align: center; white-space: nowrap; }
 .gantt__months .short { display: none; }
 
+.gantt__rows { padding: 0.6rem 0 1.1rem; }
+.gantt__tasks { margin: 0; padding: 0; list-style: none; }
+.gantt__group { padding: 0.55rem 0; }
+
+.gantt__name,
+.gantt__task {
+  margin: 0;
+  padding: 0 1.25rem;
+  text-align: right;
+}
+
 .gantt__name {
+  align-self: end;
+  margin-bottom: 0.3rem;
   color: var(--page-foreground);
   font-size: 1.0625rem;
   font-weight: 600;
@@ -449,7 +497,70 @@
   line-height: 1.25;
 }
 
-.gantt__dates,
+.gantt__task {
+  align-self: center;
+  color: var(--page-secondary);
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.gantt__row--main .gantt__track { height: 3.1rem; }
+.gantt__row--task .gantt__track { height: 1.5rem; }
+
+/* The row line a milestone bar sits on. */
+.gantt__row--main .gantt__track::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0.95rem;
+  left: 0;
+  height: 1px;
+  background: var(--gantt-rule);
+}
+
+.gantt__when {
+  position: absolute;
+  top: 0.3rem;
+  margin: 0;
+  padding: 0 0.15rem;
+  color: var(--page-foreground);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.gantt__bar {
+  position: absolute;
+  min-width: 4px;
+  border-radius: 999px;
+  background: var(--gantt-color, var(--page-accent));
+}
+
+.gantt__row--main .gantt__bar { bottom: 0.5rem; height: 0.9rem; }
+
+.gantt__row--task .gantt__bar {
+  top: 50%;
+  height: 0.4rem;
+  margin-top: -0.2rem;
+  background: color-mix(in srgb, var(--gantt-color, var(--page-accent)) 62%, var(--page-background));
+}
+
+/* Still running: square at the build-date line instead of a closed end. */
+.gantt__bar--ongoing { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+
+/* Elbow from the previous bar down into this task's start. */
+.gantt__link {
+  position: absolute;
+  bottom: 50%;
+  height: 1.5rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--gantt-color, var(--page-accent));
+  border-left: 1px solid var(--gantt-color, var(--page-accent));
+}
+
+.gantt__link--first { height: 1.7rem; }
+
 .gantt-note__date {
   margin: 0.2rem 0 0;
   color: var(--page-secondary);
@@ -457,18 +568,6 @@
   font-variant-numeric: tabular-nums;
   line-height: 1.35;
 }
-
-.gantt__bar {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  min-width: 3px;
-  border-radius: 3px;
-  background: var(--page-accent);
-}
-
-/* Still running: square at the build-date line instead of a closed end. */
-.gantt__bar--ongoing { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 
 .gantt-notes { margin-top: 3.25rem; }
 
@@ -534,13 +633,17 @@
   .activity-section__head { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
   .activity-section__head p { text-align: left; }
 
-  .gantt { --gantt-label: 0rem; --gantt-gap: 0rem; }
-  .gantt__row { grid-template-columns: minmax(0, 1fr); row-gap: 0.7rem; }
-  .gantt__row--axis .gantt__track { grid-column: 1; }
-  .gantt__months > span { padding-left: 0.2rem; }
+  .gantt { --gantt-label: 0rem; }
+  .gantt__row { grid-template-columns: minmax(0, 1fr); }
+  .gantt__corner { display: none; }
   .gantt__years .tight { display: none; }
   .gantt__months .full { display: none; }
   .gantt__months .short { display: inline; }
+  .gantt__group { padding: 0.7rem 0; }
+  .gantt__name,
+  .gantt__task { z-index: 1; justify-self: start; padding: 0 0.85rem; background: var(--page-background); text-align: left; }
+  .gantt__name { margin-bottom: 0; }
+  .gantt__task { padding-top: 0.5rem; }
 
   .gantt-note { grid-template-columns: minmax(0, 1fr); row-gap: 0.8rem; }
 
