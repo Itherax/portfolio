@@ -66,7 +66,7 @@
 
 .activity-metrics {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin: 0.85rem 0 0;
   padding: 0;
   list-style: none;
@@ -75,14 +75,21 @@
 }
 
 .activity-metrics li { min-width: 0; padding: 1.4rem 1.25rem 1.4rem 0; }
-.activity-metrics li:nth-child(-n + 3) { grid-column: span 2; }
-.activity-metrics li:nth-child(n + 4) {
-  grid-column: span 3;
-  border-top: 1px solid color-mix(in srgb, var(--page-foreground) 16%, transparent);
+.activity-metrics li + li { padding-left: 1.25rem; }
+
+/* By month takes three quarters of the row on a wide screen; recent activity sits beside it. */
+.activity-split { display: grid; grid-template-columns: minmax(0, 1fr); }
+
+@media (min-width: 900px) {
+  .activity-split { grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); column-gap: 3rem; }
+  .activity-split > .activity-section + .activity-section .activity-section__head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 0;
+  }
+  .activity-split > .activity-section + .activity-section .activity-section__head p { text-align: left; }
 }
-.activity-metrics li:nth-child(2),
-.activity-metrics li:nth-child(3),
-.activity-metrics li:nth-child(5) { padding-left: 1.25rem; }
 
 .activity-metric__value {
   display: block;
@@ -610,9 +617,7 @@
 @media (max-width: 700px) {
   .activity-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-  .activity-metrics li,
-  .activity-metrics li:nth-child(-n + 3),
-  .activity-metrics li:nth-child(n + 4) {
+  .activity-metrics li {
     grid-column: span 1;
     padding: 1.15rem 0.75rem 1.15rem 0;
     border-top: 1px solid color-mix(in srgb, var(--page-foreground) 16%, transparent);
