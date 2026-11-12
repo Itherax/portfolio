@@ -1,12 +1,163 @@
 ---
 import Layout from "../../layouts/layout.astro";
-import UnderConstruction from "../../components/under-construction.astro";
+import "../../styles/activity.css";
+import "../../styles/about.css";
+
+// PROPOSAL: every claim below is carried over from the owner's earlier site
+// (deprecated/personal.html). The owner must confirm it is still current.
+const stack = [
+  { name: "Kubernetes", mark: "kubernetes" },
+  { name: "Proxmox", mark: "proxmox" },
+  { name: "Argo CD", mark: "argo" },
+  { name: "Fedora Linux", mark: "fedora" },
+];
 ---
-<Layout title="Tyler Dalton | Personal"
-        socialTitle="Personal - Tyler Dalton"
-        description="A look beyond the technical work. Tyler Dalton's interests, hobbies, and life beyond the keyboard.">
-  <UnderConstruction
-    title="Personal"
-    path="/about/personal"
-    message="This corner is collecting the interesting parts that do not fit neatly in a job description." />
+
+<Layout
+  title="Tyler Dalton | Personal"
+  socialTitle="Personal - Tyler Dalton"
+  description="A look beyond the technical work. Tyler Dalton's interests, hobbies, and life beyond the keyboard."
+>
+  <section class="px-4 py-16 md:py-24">
+    <div class="mx-auto max-w-[1100px]">
+      <header class="activity-intro">
+        <p class="activity-kicker">About</p>
+        <h1>Beyond the keyboard</h1>
+        <p class="activity-lede">Coaching, training, and the home lab I'm building to stay sharp.</p>
+      </header>
+
+      <section class="about-section about-split" aria-labelledby="personal-coaching">
+        <figure class="about-photo about-photo--tall">
+          <img
+            src="/media/personal/coaching.webp"
+            alt="Coaching a 3rd grade youth football team during practice"
+            width="900"
+            height="1587"
+            loading="eager"
+            decoding="async"
+          />
+        </figure>
+        <div>
+          <p class="activity-kicker">Coaching</p>
+          <h2 class="about-h2" id="personal-coaching">Mason Youth Football</h2>
+          <div class="about-figures">
+            <div class="about-figure">
+              <strong>4th</strong>
+              <span>season coaching</span>
+              <div class="about-dots about-dots--round" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+            </div>
+            <div class="about-figure">
+              <strong>3rd</strong>
+              <span>grade team</span>
+            </div>
+          </div>
+          <p class="about-copy">
+            I help coach a 3rd grade team. I like building fundamentals, early confidence, communication, and a
+            team-first mindset.
+          </p>
+          <ul class="about-points">
+            <li>Practice planning and drills that keep kids engaged</li>
+            <li>Teaching technique and safety the right way</li>
+            <li>Helping players grow week to week. It's bigger than football.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="about-section about-split about-split--flip" aria-labelledby="personal-training">
+        <div>
+          <p class="activity-kicker">Training</p>
+          <h2 class="about-h2" id="personal-training">Training for HYROX</h2>
+          <p class="about-copy">
+            Outside of tech I'm training for a HYROX competition. Consistent effort, measurable progress, and staying
+            disciplined.
+          </p>
+          <ul class="about-tags" aria-label="Training goals">
+            <li>Endurance</li>
+            <li>Pacing</li>
+            <li>Recovery</li>
+          </ul>
+        </div>
+        <div class="about-panel">
+          <p class="activity-kicker">Training snapshot</p>
+          <dl>
+            <div>
+              <dt>Week</dt>
+              <dd>
+                4–5 sessions
+                <div class="about-dots" role="img" aria-label="Four sessions most weeks, sometimes five, out of seven days">
+                  <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="maybe"></i><i></i><i></i>
+                </div>
+              </dd>
+            </div>
+            <div>
+              <dt>Focus</dt>
+              <dd>Running + functional strength</dd>
+            </div>
+            <div>
+              <dt>Goal</dt>
+              <dd>Endurance, pacing, and recovery</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="about-section" aria-labelledby="personal-homelab">
+        <p class="activity-kicker">Homelab</p>
+        <h2 class="about-h2" id="personal-homelab">Where theory turns into reps</h2>
+        <p class="about-copy">Linux, virtualization, networking, and services I can monitor and improve.</p>
+        <ul class="about-stack" aria-label="Core platforms">
+          {stack.map((item) => (
+            <li>
+              <span class="about-mark" style={`--mark:url(/media/personal/${item.mark}.svg)`} aria-hidden="true" />
+              {item.name}
+            </li>
+          ))}
+        </ul>
+        <div class="about-racks">
+          <article class="about-rack">
+            <figure class="about-photo about-photo--wide">
+              <img src="/media/personal/rack-19.webp" alt="Primary 19-inch rack" width="1400" height="1050" loading="lazy" decoding="async" />
+            </figure>
+            <h3>19-inch networking rack</h3>
+            <p>Handles the heavier workloads; this is the production environment.</p>
+            <ul class="about-points">
+              <li>Proxmox VE three-node cluster</li>
+              <li>OPNsense firewall, routing, and VLAN segmentation</li>
+              <li>Grafana and Prometheus observability</li>
+            </ul>
+          </article>
+          <article class="about-rack">
+            <figure class="about-photo about-photo--wide">
+              <img src="/media/personal/rack-10.webp" alt="Lab rack, a 10-inch mini rack" width="1400" height="1867" loading="lazy" decoding="async" />
+            </figure>
+            <h3>Mobile unit</h3>
+            <p>A compact bare-metal Kubernetes environment for highly available clusters and GitOps.</p>
+            <ul class="about-points">
+              <li>Multi-node RKE2 Kubernetes cluster</li>
+              <li>Argo CD GitOps application delivery</li>
+              <li>High-availability control plane</li>
+            </ul>
+          </article>
+        </div>
+        <a class="about-link" href="https://github.com/tyler-dalton/homelab-infra" target="_blank" rel="noopener noreferrer">
+          Homelab documentation<span aria-hidden="true">&nbsp;↗</span><span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </section>
+
+      <section class="about-section" aria-labelledby="personal-interests">
+        <p class="activity-kicker" id="personal-interests">Also into</p>
+        <ul class="about-tags">
+          <li>Health and fitness</li>
+          <li>Cooking</li>
+          <li>Stoicism</li>
+          <li>Music</li>
+        </ul>
+      </section>
+
+      <p class="about-next">
+        <a href="/about/now">What I'm doing now → Now</a>
+        <a href="/contact">Say hello → Contact</a>
+      </p>
+    </div>
+  </section>
 </Layout>

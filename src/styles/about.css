@@ -1,0 +1,209 @@
+/* About routes: Personal and Now. Photo-led sections and small data graphics. */
+.about-section { margin-top: 4.5rem; }
+
+.about-split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 3rem;
+  align-items: center;
+}
+.about-split--flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+
+.about-photo { margin: 0; overflow: hidden; border: 1px solid var(--page-border); border-radius: 1rem; }
+.about-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.about-photo--tall { aspect-ratio: 4 / 5; }
+.about-photo--wide { aspect-ratio: 4 / 3; }
+
+.about-h2 {
+  margin: 0.5rem 0 0;
+  color: var(--page-foreground);
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.about-copy { max-width: 36rem; margin: 1rem 0 0; color: var(--page-secondary); font-size: 1.0625rem; line-height: 1.6; }
+
+.about-points { margin: 1.25rem 0 0; padding: 0; list-style: none; }
+.about-points li {
+  position: relative;
+  padding: 0.55rem 0 0.55rem 1.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--page-foreground) 14%, transparent);
+  color: var(--page-secondary);
+  line-height: 1.45;
+}
+.about-points li::before {
+  content: "";
+  position: absolute;
+  top: 1.05rem;
+  left: 0.1rem;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--page-accent);
+  border-radius: 50%;
+}
+
+/* Big figure with a unit, e.g. "4th season". */
+.about-figures { display: flex; flex-wrap: wrap; gap: 2.5rem; margin-top: 1.5rem; }
+.about-figure strong {
+  display: block;
+  color: var(--page-foreground);
+  font-size: clamp(2.4rem, 4vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.about-figure span { display: block; margin-top: 0.4rem; color: var(--page-secondary); font-size: 0.95rem; }
+
+/* Count shown as dots: filled, or dashed for "sometimes". */
+.about-dots { display: flex; gap: 0.45rem; margin-top: 0.9rem; }
+.about-dots i {
+  width: 1.9rem;
+  height: 1.9rem;
+  box-sizing: border-box;
+  border: 1.5px solid color-mix(in srgb, var(--page-foreground) 22%, transparent);
+  border-radius: 0.45rem;
+}
+.about-dots i.on { border-color: var(--page-accent); background: var(--page-accent); }
+.about-dots i.maybe { border: 1.5px dashed var(--page-accent); background: color-mix(in srgb, var(--page-accent) 22%, transparent); }
+.about-dots--round i { border-radius: 50%; }
+
+.about-panel {
+  padding: 1.6rem;
+  border: 1px solid color-mix(in srgb, var(--page-accent) 55%, transparent);
+  border-radius: 14px;
+}
+.about-panel dl { margin: 0; }
+.about-panel dl > div { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: 1rem; padding: 0.8rem 0; }
+.about-panel dl > div + div { border-top: 1px solid color-mix(in srgb, var(--page-foreground) 14%, transparent); }
+.about-panel dt { color: var(--page-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.72rem; letter-spacing: 0.12em; line-height: 1.9; text-transform: uppercase; }
+.about-panel dd { margin: 0; color: var(--page-foreground); font-weight: 600; }
+
+.about-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.about-tags li {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--page-border);
+  border-radius: 999px;
+  color: var(--page-foreground);
+  font-size: 0.9rem;
+}
+
+/* Platform marks, drawn in the text colour so they follow every theme. */
+.about-stack { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 2rem 0 0; padding: 0; list-style: none; }
+.about-stack li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--page-border);
+  border-radius: 0.85rem;
+  color: var(--page-foreground);
+  font-weight: 600;
+}
+.about-mark {
+  flex: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  background: var(--page-accent);
+  -webkit-mask: var(--mark) center / contain no-repeat;
+  mask: var(--mark) center / contain no-repeat;
+}
+
+.about-racks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+.about-rack h3 { margin: 1.1rem 0 0; color: var(--page-foreground); font-size: 1.35rem; font-weight: 600; letter-spacing: -0.025em; }
+.about-rack > p { margin: 0.4rem 0 0; color: var(--page-secondary); line-height: 1.55; }
+
+.about-link,
+.about-next a {
+  color: var(--page-foreground);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--page-foreground) 28%, transparent);
+  text-underline-offset: 0.22em;
+}
+.about-link { display: inline-flex; align-items: center; min-height: 2.75rem; margin-top: 0.75rem; }
+.about-link:hover,
+.about-next a:hover { color: var(--page-accent); }
+.about-link:focus-visible,
+.about-next a:focus-visible,
+.now-card:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 3px; }
+
+.about-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin: 4rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--page-foreground) 16%, transparent);
+}
+
+/* Now: a grid of cards, each with one graphic. */
+.now-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
+.now-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 15rem;
+  padding: 1.5rem;
+  overflow: hidden;
+  border: 1px solid var(--page-border);
+  border-radius: 1rem;
+  color: var(--page-foreground);
+  text-decoration: none;
+  grid-column: span 2;
+}
+a.now-card { transition: border-color 150ms ease; }
+a.now-card:hover { border-color: var(--page-accent); }
+.now-card--wide { grid-column: span 4; }
+.now-card--half { grid-column: span 3; }
+.now-card h2 { margin: 0.45rem 0 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; }
+.now-card p { max-width: 30rem; margin: 0.6rem 0 0; color: var(--page-secondary); line-height: 1.5; }
+.now-card .grow { flex: 1; }
+.now-card__arrow { margin-top: 1rem; color: var(--page-foreground); font-weight: 600; }
+
+.now-card--photo { min-height: 22rem; justify-content: flex-end; border-color: transparent; color: #fff; }
+.now-card--photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.now-card--photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, rgba(8, 14, 20, 0.96) 0%, rgba(8, 14, 20, 0.86) 48%, rgba(8, 14, 20, 0.15) 100%);
+}
+.now-card--photo > :not(img) { position: relative; z-index: 2; }
+.now-card--photo .activity-kicker,
+.now-card--photo p { color: rgba(255, 255, 255, 0.82); }
+.now-card--photo .about-tags li { border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+
+.now-card .now-number { margin-top: 0.6rem; color: var(--page-foreground); font-size: clamp(2.6rem, 4.4vw, 3.5rem); font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+
+/* Twelve-month column chart, scaled to the busiest month. */
+.now-columns { display: flex; align-items: flex-end; gap: 4px; height: 4.5rem; margin-top: 1.1rem; }
+.now-columns i { flex: 1; min-height: 2px; border-radius: 2px 2px 0 0; background: var(--page-accent); }
+.now-columns-axis { display: flex; justify-content: space-between; margin-top: 0.4rem; }
+
+@media (max-width: 900px) {
+  .now-card,
+  .now-card--wide,
+  .now-card--half { grid-column: span 3; }
+  .now-card--photo { grid-column: 1 / -1; }
+  .about-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .about-section { margin-top: 3.25rem; }
+  .about-split,
+  .about-split--flip { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .about-split--flip > :first-child { order: 2; }
+  .about-photo--tall { aspect-ratio: 4 / 3; }
+  .about-racks { grid-template-columns: minmax(0, 1fr); }
+  .now-card,
+  .now-card--wide,
+  .now-card--half { grid-column: 1 / -1; min-height: 0; }
+  .now-card--photo { min-height: 18rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.now-card { transition: none; }
+}

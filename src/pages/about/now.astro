@@ -1,12 +1,111 @@
 ---
 import Layout from "../../layouts/layout.astro";
-import UnderConstruction from "../../components/under-construction.astro";
+import { analytics } from "../../lib/analytics-view";
+import { formatCount, formatFull } from "../../lib/github-analytics";
+import "../../styles/activity.css";
+import "../../styles/about.css";
+
+// PROPOSAL: the homelab, training, coaching and study cards are carried over from
+// the owner's earlier site. The owner must confirm each is still current and set
+// the date below before this page is published.
+const contributions = analytics.metrics.find((metric) => metric.id === "contributions");
+const months = analytics.months;
 ---
-<Layout title="Tyler Dalton | Now"
-        socialTitle="Now - Tyler Dalton"
-        description="A concise snapshot of current projects and focus for Tyler Dalton.">
-  <UnderConstruction
-    title="Now"
-    path="/about/now"
-    message="A concise snapshot of current projects and focus is next on the publishing list." />
+
+<Layout
+  title="Tyler Dalton | Now"
+  socialTitle="Now - Tyler Dalton"
+  description="A concise snapshot of current projects and focus for Tyler Dalton."
+>
+  <section class="px-4 py-16 md:py-24">
+    <div class="mx-auto max-w-[1100px]">
+      <header class="activity-intro">
+        <p class="activity-kicker">About</p>
+        <h1>Now</h1>
+        <p class="activity-lede">What has my attention this season, in and out of the lab.</p>
+        <p class="activity-caption">Cincinnati, Ohio · GitHub numbers through {formatFull(analytics.contributionAsOf)}</p>
+      </header>
+
+      <div class="now-grid">
+        <a class="now-card now-card--photo now-card--wide" href="/about/personal">
+          <img src="/media/personal/rack-19.webp" alt="" width="1400" height="1050" loading="eager" decoding="async" />
+          <p class="activity-kicker">Building</p>
+          <h2>The homelab</h2>
+          <p>A three-node Proxmox cluster behind OPNsense, plus a mini rack running RKE2 and Argo CD.</p>
+          <ul class="about-tags" aria-label="Platforms">
+            <li>Kubernetes</li>
+            <li>Proxmox</li>
+            <li>Argo CD</li>
+            <li>Fedora Linux</li>
+          </ul>
+        </a>
+
+        <a class="now-card" href="/activity/github">
+          <p class="activity-kicker">Shipping</p>
+          {contributions && <p class="now-number">{formatCount(contributions.value)}</p>}
+          <p>GitHub contributions in the last 30 days.</p>
+          <div class="grow"></div>
+          <div class="now-columns" role="img" aria-label={`Contributions by month, ${months[0].label} to ${months[months.length - 1].label}`}>
+            {months.map((month) => <i style={`height:${Math.max(month.scale, 0)}%`} />)}
+          </div>
+          <div class="now-columns-axis activity-caption" aria-hidden="true">
+            <span>{months[0].label}</span>
+            <span>{months[months.length - 1].label}</span>
+          </div>
+        </a>
+
+        <div class="now-card">
+          <p class="activity-kicker">Training</p>
+          <h2>HYROX</h2>
+          <p>Running and functional strength, 4–5 sessions a week.</p>
+          <div class="grow"></div>
+          <div class="about-dots" role="img" aria-label="Four sessions most weeks, sometimes five, out of seven days">
+            <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="maybe"></i><i></i><i></i>
+          </div>
+        </div>
+
+        <div class="now-card">
+          <p class="activity-kicker">Coaching</p>
+          <h2>Mason Youth Football</h2>
+          <p>Fourth season with a 3rd grade team.</p>
+          <div class="grow"></div>
+          <div class="about-dots about-dots--round" role="img" aria-label="Four seasons">
+            <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+          </div>
+        </div>
+
+        <div class="now-card">
+          <p class="activity-kicker">Studying</p>
+          <h2>University of Cincinnati</h2>
+          <p>Double major in Cybersecurity and Network/System Administration.</p>
+          <div class="grow"></div>
+          <ul class="about-tags" aria-label="Majors">
+            <li>Cybersecurity</li>
+            <li>Network/System Administration</li>
+          </ul>
+        </div>
+
+        <a class="now-card now-card--half" href="/work/projects/panoptes">
+          <p class="activity-kicker">Latest case study</p>
+          <h2>Panoptes</h2>
+          <p>A portable Kubernetes observability platform for RKE2 and OpenShift, built in summer 2026.</p>
+          <div class="grow"></div>
+          <span class="now-card__arrow">Read the case study →</span>
+        </a>
+
+        <a class="now-card now-card--half" href="/activity/timeline">
+          <p class="activity-kicker">Looking back</p>
+          <h2>Timeline</h2>
+          <p>Published milestones on a Gantt chart, from the lab's start to today.</p>
+          <div class="grow"></div>
+          <span class="now-card__arrow">Open the timeline →</span>
+        </a>
+      </div>
+
+      <p class="about-next">
+        <a href="/about/personal">More beyond the keyboard → Personal</a>
+        <a href="/contact">Say hello → Contact</a>
+      </p>
+    </div>
+  </section>
 </Layout>
