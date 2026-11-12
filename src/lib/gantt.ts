@@ -17,8 +17,9 @@ export type GanttLayout = {
   months: GanttMonth[];
   years: GanttYear[];
   today: number;
-  asOfIso: string;
-  asOfLabel: string;
+  /** Axis bounds in UTC milliseconds, so the page can move the today line between builds. */
+  axisStart: number;
+  axisEnd: number;
 };
 
 const DAY = 86_400_000;
@@ -78,7 +79,7 @@ export function layoutGantt(spans: GanttSpan[], asOf: Date = new Date()): GanttL
     months,
     years,
     today: pct(at(today)),
-    asOfIso: new Date(today).toISOString().slice(0, 10),
-    asOfLabel: `${MONTHS[asOf.getUTCMonth()]} ${asOf.getUTCDate()}, ${asOf.getUTCFullYear()}`,
+    axisStart,
+    axisEnd,
   };
 }

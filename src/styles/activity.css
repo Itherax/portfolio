@@ -553,6 +553,17 @@
   background: color-mix(in srgb, var(--gantt-color, var(--page-accent)) 62%, var(--page-background));
 }
 
+a.gantt__bar { cursor: pointer; transition: filter 150ms ease; }
+a.gantt__bar::after { content: ""; position: absolute; inset: -0.7rem 0; }
+a.gantt__bar:hover,
+.gantt__group--open a.gantt__bar { filter: brightness(1.18); }
+.gantt__group--open a.gantt__bar { outline: 2px solid var(--page-foreground); outline-offset: 2px; }
+.gantt__group--open .gantt__name { color: var(--gantt-color, var(--page-accent)); }
+
+@media (prefers-reduced-motion: reduce) {
+  a.gantt__bar { transition: none; }
+}
+
 /* Still running: square at the build-date line instead of a closed end. */
 .gantt__bar--ongoing { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 
@@ -577,6 +588,10 @@
 }
 
 .gantt-notes { margin-top: 3.25rem; }
+.gantt-notes[hidden],
+.gantt-note[hidden] { display: none; }
+.gantt:has(.gantt__group--open) + .gantt-notes { margin-top: 1.5rem; }
+.gantt:has(.gantt__group--open) + .gantt-notes .gantt-note { border-top: 0; padding-top: 0.5rem; }
 
 .gantt-note {
   display: grid;

@@ -38,12 +38,12 @@ const rows = entries.map((entry, index) => {
     <p class="activity-empty">No milestones are listed yet.</p>
   ) : (
     <>
-      <div class="gantt">
+      <div class="gantt" data-gantt data-axis-start={chart.axisStart} data-axis-end={chart.axisEnd}>
         <div class="gantt__grid" aria-hidden="true">
           {chart.months.map((month) => (
             <span class="gantt__gridline" style={`left:${month.left}%`} />
           ))}
-          <span class="gantt__today" style={`left:${chart.today}%`} />
+          <span class="gantt__today" data-gantt-today style={`left:${chart.today}%`} />
         </div>
 
         <div class="gantt__row gantt__head" aria-hidden="true">
@@ -73,7 +73,7 @@ const rows = entries.map((entry, index) => {
           {rows.map(({ entry, bar, tasks, color, flip }) => (
             <li class={`gantt__group gantt__group--c${color}`}>
               <div class="gantt__row gantt__row--main">
-                <a class="gantt__name" href={`#${entry.id}`}>{entry.title}</a>
+                <a class="gantt__name" href={`#${entry.id}`} data-gantt-toggle={entry.id}>{entry.title}</a>
                 <div class="gantt__track">
                   <p
                     class="gantt__when"
@@ -81,9 +81,13 @@ const rows = entries.map((entry, index) => {
                   >
                     <time datetime={entry.date}>{entry.dateLabel}</time>
                   </p>
-                  <span
+                  <a
                     class:list={["gantt__bar", bar.ongoing && "gantt__bar--ongoing"]}
                     style={`left:${bar.left}%;width:${bar.width}%`}
+                    data-gantt-ongoing={bar.ongoing ? bar.left : undefined}
+                    href={`#${entry.id}`}
+                    data-gantt-toggle={entry.id}
+                    tabindex="-1"
                     aria-hidden="true"
                   />
                 </div>
@@ -106,6 +110,7 @@ const rows = entries.map((entry, index) => {
                         <span
                           class:list={["gantt__bar", taskBar.ongoing && "gantt__bar--ongoing"]}
                           style={`left:${taskBar.left}%;width:${taskBar.width}%`}
+                          data-gantt-ongoing={taskBar.ongoing ? taskBar.left : undefined}
                         />
                       </div>
                     </li>
@@ -116,12 +121,8 @@ const rows = entries.map((entry, index) => {
           ))}
         </ol>
       </div>
-      <p class="activity-caption">
-        Bars are drawn to scale by day. The vertical line is <time datetime={chart.asOfIso}>{chart.asOfLabel}</time>,
-        when this page was built; a bar that reaches it is still running.
-      </p>
 
-      <ol class="gantt-notes">
+      <ol class="gantt-notes" data-gantt-notes>
         {entries.map((entry) => (
           <li class="gantt-note" id={entry.id}>
             <div class="gantt-note__head">
@@ -152,3 +153,60 @@ const rows = entries.map((entry, index) => {
     </>
   )
 }
+
+<script is:inline>
+  // Runs right after the chart so nothing flashes. Without JavaScript the chart keeps
+  // its build-date positions, every description stays visible, and bars are jump links.
+  (() => {
+    for (const chart of document.querySelectorAll("[data-gantt]:not([data-gantt-ready])")) {
+      chart.setAttribute("data-gantt-ready", "");
+
+      // Between builds, move the today line and still-running bars to the visitor's date.
+      const start = Number(chart.dataset.axisStart);
+      const end = Number(chart.dataset.axisEnd);
+      const line = chart.querySelector("[data-gantt-today]");
+      if (line && end > start) {
+        const now = new Date();
+        const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+        const built = parseFloat(line.style.left);
+        // Never move backwards, and stop at the right edge until the next build extends the axis.
+        const position = Math.min(100, Math.max(built, ((today - start) / (end - start)) * 100));
+        line.style.left = position + "%";
+        for (const bar of chart.querySelectorAll("[data-gantt-ongoing]")) {
+          bar.style.width = Math.max(0, position - Number(bar.dataset.ganttOngoing)) + "%";
+        }
+      }
+
+      // Descriptions open one at a time from a bar or its title.
+      const notes = chart.parentElement.querySelector("[data-gantt-notes]");
+      if (!notes) continue;
+      const toggles = [...chart.querySelectorAll("[data-gantt-toggle]")];
+      const show = (id) => {
+        let open = false;
+        for (const note of notes.children) {
+          note.hidden = note.id !== id;
+          open = open || !note.hidden;
+        }
+        notes.hidden = !open;
+        for (const toggle of toggles) {
+          const on = open && toggle.dataset.ganttToggle === id;
+          toggle.setAttribute("aria-expanded", String(on));
+          toggle.closest(".gantt__group").classList.toggle("gantt__group--open", on);
+        }
+      };
+      for (const toggle of toggles) {
+        toggle.setAttribute("role", "button");
+        toggle.setAttribute("aria-controls", toggle.dataset.ganttToggle);
+        const act = (event) => {
+          event.preventDefault();
+          show(toggle.getAttribute("aria-expanded") === "true" ? "" : toggle.dataset.ganttToggle);
+        };
+        toggle.addEventListener("click", act);
+        toggle.addEventListener("keydown", (event) => {
+          if (event.key === " ") act(event);
+        });
+      }
+      show(decodeURIComponent(location.hash.slice(1)));
+    }
+  })();
+</script>
